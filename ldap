@@ -1,0 +1,33 @@
+try {
+	
+            //Checking LDAP properties
+            log.debug("LDAP_URL: " + ldapctxsrc.getUrls()[0]);
+            log.debug("LDAP_BaseDN: " + ldapctxsrc.getBaseLdapPathAsString());            
+			
+			String base = ldapctxsrc.getBaseLdapPathAsString();
+	        
+			//building userDn for lookup
+			String userDn =  "uid=" + userId + "," + base;
+			//lookup
+			DirContextAdapter dirctx = (DirContextAdapter) ldapTemplate.lookup(userDn);
+			
+			if (!dirctx.equals(null))
+			{
+			 log.debug("lookup return: " + dirctx);
+			}
+			else 
+			{
+				log.debug("User " + userId +" not found in the LDAP");
+			}
+			
+			// dirctx.getDn().get(3).toString() returns uid=CORP_ID
+			if(dirctx.getDn().get(3).toString().equalsIgnoreCase("uid="+userId))
+			{
+				AndFilter filter = new AndFilter();
+				filter.and(new EqualsFilter("uid", userId));
+				
+				isauthenticated = ldapTemplate.authenticate(base, filter.toString(), password);
+			
+			}
+
+		}  
